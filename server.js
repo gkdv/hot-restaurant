@@ -24,6 +24,24 @@ var reservations = [
   },
 ];
 
+var waitlist = [
+  {
+    routeName: "juancastellanos",
+    name: "juan castellanos",
+    phoneNumber: "2413494955",
+    email: 'juan.castellanos@yahoo.com',
+    uniqueID: 'hambriento'
+  }
+]
+
+function popReservations(newReservation) {
+  if (!reservations > 5) {
+    reservations.push(newReservation)
+  } else {
+    waitlist.push(newReservation)
+  }
+}
+
 // Routes
 // =============================================================
 
@@ -70,17 +88,17 @@ app.get("/api/reservations/:reservation", function (req, res) {
 app.post("/api/reservations", function (req, res) {
   // req.body hosts is equal to the JSON post sent from the user
   // This works because of our body parsing middleware
-  var newCharacter = req.body;
+  var newReservation = req.body;
 
   // Using a RegEx Pattern to remove spaces from newCharacter
   // You can read more about RegEx Patterns later https://www.regexbuddy.com/regex.html
-  newCharacter.routeName = newCharacter.name.replace(/\s+/g, "").toLowerCase();
+  newReservation.routeName = newReservation.name.replace(/\s+/g, "").toLowerCase();
 
-  console.log(newCharacter);
+  console.log(newReservation);
 
-  characters.push(newCharacter);
+  characters.push(newReservation);
 
-  res.json(newCharacter);
+  res.json(newReservation);
 });
 
 // Starts the server to begin listening
