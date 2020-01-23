@@ -2,6 +2,7 @@
 // =============================================================
 var express = require("express");
 var path = require("path");
+const fs = require("fs");
 
 // Sets up the Express App
 // =============================================================
@@ -14,33 +15,6 @@ app.use(express.json());
 
 // Star Wars Characters (DATA)
 // =============================================================
-var reservations = [
-  {
-    routeName: "garrettkrage",
-    name: "garrett krage",
-    phoneNumber: "7193404935",
-    email: 'garrett.krage@yahoo.com',
-    uniqueID: 'hungry man'
-  },
-];
-
-var waitlist = [
-  {
-    routeName: "juancastellanos",
-    name: "juan castellanos",
-    phoneNumber: "2413494955",
-    email: 'juan.castellanos@yahoo.com',
-    uniqueID: 'hambriento'
-  }
-]
-
-function popReservations(newReservation) {
-  if (!reservations > 5) {
-    reservations.push(newReservation)
-  } else {
-    waitlist.push(newReservation)
-  }
-}
 
 // Routes
 // =============================================================
@@ -62,12 +36,35 @@ app.get("/api/waitlist", (req, res) => {
   // res.sendFile(path.join(__dirname, "reserve.html"));
 });
 
+// waiting list
+
+// current reservations
+
+// database link for tables
+
+// database for waiting list
+app.get("/api/tables", function (req, res) {
+  res.json(JSON.parse(fs.readFileSync('db/db.json', 'utf8')).slice(0,5));
+});
+
+app.get("/api/waiting", function (req, res) {
+  res.json(JSON.parse(fs.readFileSync('db/db.json', 'utf8')).slice(5));
+});
+
+
+
+app.post("/reserve/newreservation", (req,res)=>{
+  const newReservation = req.body;
+  dbJSON = JSON.parse(fs.readFileSync('db/db.json', 'utf8'));
+  dbJSON.push(newReservation);
+  fs.writeFileSync('db/db.json', JSON.stringify(dbJSON,null,2,"utf-8"))
+  res.json(newReservation);
+})
+
 
 
 // Displays all characters
-app.get("/tables", function (req, res) {
-  return res.json(reservations);
-});
+
 
 // Displays a single character, or returns false
 app.get("/api/reservations/:reservation", function (req, res) {
@@ -75,6 +72,7 @@ app.get("/api/reservations/:reservation", function (req, res) {
 
   console.log(chosen);
 
+  reservations = res.json(JSON.parse(fs.readFileSync('db/db.json', 'utf8')));
   for (var i = 0; i < reservations.length; i++) {
     if (chosen === reservations[i].routeName) {
       return res.json(reservations[i]);
@@ -82,23 +80,6 @@ app.get("/api/reservations/:reservation", function (req, res) {
   }
 
   return res.json(false);
-});
-
-// Create New Characters - takes in JSON input
-app.post("/api/reservations", function (req, res) {
-  // req.body hosts is equal to the JSON post sent from the user
-  // This works because of our body parsing middleware
-  var newReservation = req.body;
-
-  // Using a RegEx Pattern to remove spaces from newCharacter
-  // You can read more about RegEx Patterns later https://www.regexbuddy.com/regex.html
-  newReservation.routeName = newReservation.name.replace(/\s+/g, "").toLowerCase();
-
-  console.log(newReservation);
-
-  characters.push(newReservation);
-
-  res.json(newReservation);
 });
 
 // Starts the server to begin listening
